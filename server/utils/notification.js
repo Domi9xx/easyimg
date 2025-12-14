@@ -206,6 +206,19 @@ async function sendWebhookNotification(config, payload) {
 }
 
 /**
+ * 检查URL是否为有效的完整URL（包含协议和主机）
+ */
+function isValidImageUrl(url) {
+  if (!url || typeof url !== 'string') return false
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+/**
  * 发送 Telegram 通知
  */
 async function sendTelegramNotification(config, payload) {
@@ -222,10 +235,11 @@ async function sendTelegramNotification(config, payload) {
     const bot = new TelegramBot(telegram.token)
     const chatId = Number(telegram.chatId)
 
-    // 检查是否有图片URL需要发送
+    // 检查是否有有效的图片URL需要发送
     const imageUrl = payload.data?.url || payload.data?.imageUrl
+    const hasValidImageUrl = isValidImageUrl(imageUrl)
 
-    if (imageUrl) {
+    if (hasValidImageUrl) {
       // 构建带图片的消息内容（Markdown 格式）
       let caption = `*${escapeMarkdown(payload.title)}*\n${escapeMarkdown(payload.message)}`
 
@@ -245,7 +259,7 @@ async function sendTelegramNotification(config, payload) {
         parse_mode: 'Markdown'
       })
     } else {
-      // 没有图片时，发送普通文本消息
+      // 没有有效图片URL时，发送普通文本消息
       let message = `*${escapeMarkdown(payload.title)}*\n${escapeMarkdown(payload.message)}`
 
       // 如果有额外数据，添加到消息中
@@ -374,8 +388,9 @@ async function sendEmailNotification(config, payload) {
       }
     })
 
-    // 检查是否有图片URL
+    // 检查是否有有效的图片URL
     const imageUrl = payload.data?.url || payload.data?.imageUrl
+    const hasValidImageUrl = isValidImageUrl(imageUrl)
 
     // 构建邮件内容
     let htmlContent = `
@@ -386,8 +401,8 @@ async function sendEmailNotification(config, payload) {
         <p>${payload.message}</p>
     `
 
-    // 如果有图片URL，在邮件中显示图片
-    if (imageUrl) {
+    // 如果有有效的图片URL，在邮件中显示图片
+    if (hasValidImageUrl) {
       htmlContent += `
         <div style="margin-top: 20px; text-align: center;">
           <img src="${imageUrl}" alt="上传的图片" style="max-width: 100%; max-height: 400px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
@@ -452,14 +467,15 @@ async function sendServerChanNotification(config, payload) {
 
     const url = `https://sctapi.ftqq.com/${serverchan.sendKey}.send`
 
-    // 检查是否有图片URL
+    // 检查是否有有效的图片URL
     const imageUrl = payload.data?.url || payload.data?.imageUrl
+    const hasValidImageUrl = isValidImageUrl(imageUrl)
 
     // 构建消息内容（Markdown 格式）
     let content = payload.message
 
-    // 如果有图片URL，使用 Markdown 语法显示图片
-    if (imageUrl) {
+    // 如果有有效的图片URL，使用 Markdown 语法显示图片
+    if (hasValidImageUrl) {
       content += `\n\n![图片预览](${imageUrl})`
     }
 

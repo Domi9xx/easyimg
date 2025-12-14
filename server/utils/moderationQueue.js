@@ -173,12 +173,21 @@ async function processTask(task) {
         }
       }
 
+      // 获取站点 URL 配置，用于生成完整图片链接
+      const appSettingsDoc = await db.settings.findOne({ key: 'appSettings' })
+      let siteUrl = appSettingsDoc?.value?.siteUrl || ''
+
+      // 移除末尾斜杠，确保 URL 拼接正确
+      siteUrl = siteUrl.replace(/\/+$/, '')
+      const imageExtension = task.filename.split('.').pop()
+      const fullImageUrl = siteUrl ? `${siteUrl}/i/${task.imageUuid}.${imageExtension}` : ''
+
       // 发送鉴黄检测结果通知（异步，不阻塞处理）
       sendNsfwNotification(
         {
           id: task.imageId,
           filename: task.filename,
-          url: `/i/${task.imageUuid}.${task.filename.split('.').pop()}`
+          url: fullImageUrl
         },
         {
           isNsfw: result.isNsfw,
