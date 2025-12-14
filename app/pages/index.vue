@@ -84,9 +84,9 @@
         </div>
       </div>
 
-      <!-- 加载更多 -->
+      <!-- 加载更多 - 只在已有图片且有更多数据时显示，避免与初始加载 loading 重复 -->
       <div
-        v-if="imagesStore.hasMore"
+        v-if="imagesStore.hasMore && imagesStore.images.length > 0"
         ref="loadMoreTrigger"
         class="flex justify-center py-8"
       >

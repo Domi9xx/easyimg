@@ -4,11 +4,13 @@
     <div
       class="upload-area flex-1 relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300"
       :class="[
-        isDisabled
-          ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
-          : isDragging
-            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-            : 'border-gray-300 dark:border-gray-600 hover:border-primary-400 dark:hover:border-primary-500 cursor-pointer',
+        !configLoaded
+          ? 'border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30'
+          : isDisabled
+            ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
+            : isDragging
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+              : 'border-gray-300 dark:border-gray-600 hover:border-primary-400 dark:hover:border-primary-500 cursor-pointer',
         isUploading ? 'pointer-events-none opacity-60' : ''
       ]"
       @click="triggerFileInput"
@@ -28,51 +30,70 @@
         </div>
       </div>
 
-      <!-- 禁用状态 -->
-      <template v-if="isDisabled">
-        <!-- 禁用图标 -->
-        <div class="mb-4">
-          <Icon name="heroicons:no-symbol" class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600" />
-        </div>
-        <!-- 禁用提示 -->
-        <div class="space-y-2">
-          <p class="text-lg font-medium text-gray-400 dark:text-gray-500">
-            访客上传已禁用
-          </p>
-          <p class="text-sm text-gray-400 dark:text-gray-500">
-            请登录后上传图片
-          </p>
-        </div>
-      </template>
+      <!-- 内容区域 - 固定高度避免状态切换时高度变化 -->
+      <div class="upload-content h-[148px]">
+        <!-- 加载中骨架屏 - 配置未加载完成时显示 -->
+        <template v-if="!configLoaded">
+          <!-- 骨架图标 -->
+          <div class="mb-4">
+            <div class="w-16 h-16 mx-auto rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+          </div>
+          <!-- 骨架文字 -->
+          <div class="space-y-3">
+            <div class="h-7 w-64 mx-auto bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            <div class="h-5 w-80 mx-auto bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            <div class="h-5 w-36 mx-auto bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          </div>
+        </template>
 
-      <!-- 正常状态 -->
-      <template v-else>
-        <!-- 上传图标 -->
-        <div class="mb-4">
-          <Icon name="heroicons:cloud-arrow-up" class="w-16 h-16 mx-auto text-gray-400 dark:text-gray-500" />
-        </div>
+        <!-- 禁用状态 -->
+        <template v-else-if="isDisabled">
+          <!-- 禁用图标 -->
+          <div class="mb-4">
+            <Icon name="heroicons:no-symbol" class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600" />
+          </div>
+          <!-- 禁用提示 -->
+          <div class="space-y-3">
+            <p class="text-lg font-medium text-gray-400 dark:text-gray-500">
+              访客上传已禁用
+            </p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">
+              请登录后上传图片
+            </p>
+            <!-- 占位，保持高度一致 -->
+            <p class="text-sm invisible">&nbsp;</p>
+          </div>
+        </template>
 
-        <!-- 提示文字 -->
-        <div class="space-y-2">
-          <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
-            点击、拖拽或粘贴上传图片
-            <span v-if="authStore.isAuthenticated">
-              <span>{{ ' ' }} 或 {{ ' ' }}</span>
-              <span
-                @click.stop="showUrlModal = true"
-                @keydown.enter="showUrlModal = true"
-                class="hover:text-primary-600 dark:hover:text-primary-500 cursor-pointer hover:underline transition-all duration-300"
-                >使用URL上传</span>
-            </span>
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            支持 {{ allowedFormats.join(', ').toUpperCase() }} 格式，可选择多张
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            单张最大 {{ formatFileSize(maxFileSize) }}
-          </p>
-        </div>
-      </template>
+        <!-- 正常状态 -->
+        <template v-else>
+          <!-- 上传图标 -->
+          <div class="">
+            <Icon name="heroicons:cloud-arrow-up" class="w-16 h-16 mx-auto text-gray-400 dark:text-gray-500" />
+          </div>
+
+          <!-- 提示文字 -->
+          <div class="space-y-3">
+            <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
+              点击、拖拽或粘贴上传图片
+              <span v-if="authStore.isAuthenticated">
+                <span>{{ ' ' }} 或 {{ ' ' }}</span>
+                <span
+                  @click.stop="showUrlModal = true"
+                  @keydown.enter="showUrlModal = true"
+                  class="hover:text-primary-600 dark:hover:text-primary-500 cursor-pointer hover:underline transition-all duration-300"
+                  >使用URL上传</span>
+              </span>
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              支持 {{ allowedFormats.join(', ').toUpperCase() }} 格式，可选择多张
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              单张最大 {{ formatFileSize(maxFileSize) }}
+            </p>
+          </div>
+        </template>
+      </div>
 
       <!-- 隐藏的文件输入（支持多选） -->
       <input
@@ -134,6 +155,7 @@ const fileInput = ref(null)
 const isDragging = ref(false)
 const isUploading = ref(false)
 const uploadProgress = ref('上传中...')
+const configLoaded = ref(false)
 
 // URL上传相关
 const showUrlModal = ref(false)
@@ -152,12 +174,15 @@ watch(showUrlModal, (visible) => {
 // 配置
 const allowedFormats = ref(['jpeg', 'jpg', 'png', 'gif', 'webp', 'avif', 'svg', 'bmp', 'ico', 'apng', 'tiff', 'tif'])
 const maxFileSize = ref(10 * 1024 * 1024) // 10MB
-const publicApiEnabled = ref(true)
+// 初始值为 null，表示配置尚未加载
+const publicApiEnabled = ref(null)
 const defaultApiKey = ref('')
 
 // 计算是否禁用上传（未登录且公共上传已禁用）
+// 配置未加载时（null），不显示禁用状态，避免闪烁
 const isDisabled = computed(() => {
-  return !authStore.isAuthenticated && !publicApiEnabled.value
+  if (!configLoaded.value) return false
+  return !authStore.isAuthenticated && publicApiEnabled.value === false
 })
 
 // 计算接受的文件类型
@@ -225,6 +250,9 @@ async function fetchConfig() {
     }
   } catch (error) {
     console.error('获取配置失败:', error)
+  } finally {
+    // 标记配置已加载完成
+    configLoaded.value = true
   }
 }
 
