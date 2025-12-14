@@ -115,6 +115,9 @@ export default defineEventHandler(async (event) => {
     const filename = `${imageUuid}.${finalFormat}`
     await saveUploadedFile(processedBuffer, filename)
 
+    // 判断是否启用内容安全检测
+    const contentSafetyEnabled = config.contentSafety?.enabled || false
+
     // 保存到数据库
     const imageDoc = {
       _id: uuidv4(),
@@ -133,15 +136,17 @@ export default defineEventHandler(async (event) => {
       uploadedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       // 内容审核相关字段
-      moderationStatus: 'pending',  // pending, processing, completed, failed, error
-      moderationResult: null,
+      // 如果未启用内容安全检测，状态直接设为 skipped
+      moderationStatus: contentSafetyEnabled ? 'pending' : 'skipped',
+      moderationResult: contentSafetyEnabled ? null : { skipped: true, reason: '内容安全检测未启用' },
+      moderationChecked: !contentSafetyEnabled,  // 未启用时标记为已检测（跳过）
       isNsfw: false
     }
 
     await db.images.insert(imageDoc)
 
     // 如果启用了内容安全检测，创建审核任务
-    if (config.contentSafety?.enabled) {
+    if (contentSafetyEnabled) {
       try {
         await createModerationTask(imageDoc._id, imageUuid, filename)
       } catch (err) {
