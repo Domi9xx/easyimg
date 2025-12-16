@@ -183,17 +183,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 限制URL数量，避免滥用
-    const maxUrls = 20
-    if (urls.length > maxUrls) {
-      throw createError({
-        statusCode: 400,
-        message: `最多支持 ${maxUrls} 个URL`
-      })
-    }
-
-    // 过滤空URL
-    const validUrls = urls.map(u => u.trim()).filter(u => u.length > 0)
+    // 过滤空URL并自动去重
+    const validUrls = [...new Set(urls.map(u => u.trim()).filter(u => u.length > 0))]
     if (validUrls.length === 0) {
       throw createError({
         statusCode: 400,
